@@ -110,26 +110,31 @@ else:
 
 st.divider()
 
-# 4. СТАТИСТИКА ТА РОЗКЛАД КОНКРЕТНОЇ КОМАНДИ
-st.subheader("📊 Розклад та історія команди")
+# 4. СТАТИСТИКА ТА РОЗКЛАД МАТЧІВ
+st.subheader("📊 Розклад та історія матчів")
 
-team_names = []
+# Додаємо опцію "Всі матчі" на перше місце у списку
+team_names = ["Всі матчі"]
 for group_teams in data['teams'].values():
     team_names.extend(group_teams)
     
-selected_team = st.selectbox("Оберіть команду для перегляду її матчів:", team_names)
+selected_team = st.selectbox("Оберіть команду для перегляду її матчів (або залиште 'Всі матчі'):", team_names)
 
-team_matches = [
-    m for m in data['matches'] 
-    if m['team1'] == selected_team or m['team2'] == selected_team
-]
+# Якщо обрано "Всі матчі", беремо весь список, інакше — фільтруємо за командою
+if selected_team == "Всі матчі":
+    team_matches = data['matches']
+else:
+    team_matches = [
+        m for m in data['matches'] 
+        if m['team1'] == selected_team or m['team2'] == selected_team
+    ]
 
 if team_matches:
     df_matches = pd.DataFrame(team_matches)
     
     # Безпечне створення колонки рахунку
     df_matches['Візуальний_рахунок'] = df_matches.apply(
-        lambda row: f"{row['score1']} : {row['score2']}" if row['status'] == 'Зіграна' else "- : -", 
+        lambda row: f"{row.get('score1', 0)} : {row.get('score2', 0)}" if row['status'] == 'Зіграна' else "- : -", 
         axis=1
     )
     
@@ -144,4 +149,4 @@ if team_matches:
     })
     st.dataframe(df_matches, hide_index=True, use_container_width=True)
 else:
-    st.info("Для цієї команди ще не додано жодного матчу в базу.")
+    st.info("Для цього вибору ще не додано жодного матчу в базу.")
