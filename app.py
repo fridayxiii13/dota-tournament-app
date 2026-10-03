@@ -58,6 +58,7 @@ for match in data['matches']:
 df_all = pd.DataFrame(standings.values())
 
 # 2. ВІДОБРАЖЕННЯ ГРУП
+st.info("💡 **Система очок:** Перемога 2:0 — 3 бали переможцю, 0 тому, хто програв. Перемога 2:1 — 2 бали переможцю, 1 тому, хто програв.")
 col1, col2 = st.columns(2)
 
 with col1:
