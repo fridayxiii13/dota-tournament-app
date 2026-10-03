@@ -6,7 +6,7 @@ import time # Додано для обходу кешу GitHub
 st.set_page_config(page_title="Dota 2 Tournament", page_icon="🎮", layout="wide")
 
 # ВАЖЛИВО: Замініть на ваше посилання
-JSON_URL = "https://raw.githubusercontent.com/ВАШ_ЮЗЕРНЕЙМ/dota-tournament-app/main/data.json"
+JSON_URL = "https://raw.githubusercontent.com/fridayxiii13/dota-tournament-app/main/data.json"
 
 @st.cache_data(ttl=10)
 def load_data():
