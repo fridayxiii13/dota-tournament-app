@@ -5,7 +5,7 @@
   },
   "matches": [
     {"id": 1, "stage": "Група A", "team1": "Енергофідери", "team2": "Protocol Blackouts", "status": "Зіграна", "date": "02.10 19:30", "score1": 0, "score2": 2, "pts1": 0, "pts2": 3},
-    {"id": 2, "stage": "Група A", "team1": "Енергофідери", "team2": "Збірна №9 (Кібертюбики)", "status": "Запланована", "date": "TBD", "score1": 0, "score2": 0, "pts1": 0, "pts2": 0},
+    {"id": 2, "stage": "Група A", "team1": "Енергофідери", "team2": "Збірна №9 (Кібертюбики)", "status": "Уточнюється", "date": "TBD", "score1": 0, "score2": 0, "pts1": 0, "pts2": 0},
     {"id": 3, "stage": "Група A", "team1": "Енергофідери", "team2": "Збірна №8 GG NOLIGHT", "status": "Уточнюється", "date": "TBD", "score1": 0, "score2": 0, "pts1": 0, "pts2": 0},
     {"id": 4, "stage": "Група A", "team1": "Енергофідери", "team2": "Shadow", "status": "Уточнюється", "date": "TBD", "score1": 0, "score2": 0, "pts1": 0, "pts2": 0},
     {"id": 5, "stage": "Група A", "team1": "Protocol Blackouts", "team2": "Збірна №9 (Кібертюбики)", "status": "Уточнюється", "date": "TBD", "score1": 0, "score2": 0, "pts1": 0, "pts2": 0},
