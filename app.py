@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import time # Додано для обходу кешу GitHub
 
 st.set_page_config(page_title="Dota 2 Tournament", page_icon="🎮", layout="wide")
 
@@ -9,14 +10,16 @@ JSON_URL = "https://raw.githubusercontent.com/ВАШ_ЮЗЕРНЕЙМ/dota-tourn
 
 @st.cache_data(ttl=10)
 def load_data():
-    response = requests.get(JSON_URL)
+    # Додаємо параметр часу, щоб GitHub завжди віддавав найсвіжіший файл
+    fresh_url = f"{JSON_URL}?t={time.time()}"
+    response = requests.get(fresh_url)
     return response.json()
 
 data = load_data()
 
 st.title("🏆 Dota 2 Tournament Dashboard")
 
-# 1. ДИНАМІЧНИЙ ПІДРАХУНОК СТАТИСТИКИ (адаптовано під нову структуру teams)
+# 1. ДИНАМІЧНИЙ ПІДРАХУНОК СТАТИСТИКИ
 standings = {}
 for group_name, teams_list in data['teams'].items():
     for team in teams_list:
@@ -29,7 +32,7 @@ for group_name, teams_list in data['teams'].items():
             'Група': group_name
         }
 
-# Проходимо по матчах (адаптовано під нові ключі score1, score2, pts1, pts2 та статус "Зіграна")
+# Проходимо по матчах
 for match in data['matches']:
     if match['status'] == 'Зіграна':
         t1 = match['team1']
@@ -43,7 +46,6 @@ for match in data['matches']:
             standings[t1]['Очки'] += pts1
             standings[t2]['Очки'] += pts2
             
-            # Перемоги/поразки рахуємо за картами (score1 / score2)
             s1 = match.get('score1', 0)
             s2 = match.get('score2', 0)
             if s1 > s2:
@@ -61,7 +63,6 @@ col1, col2 = st.columns(2)
 with col1:
     st.header("Група A")
     if not df_all.empty:
-        # Фільтруємо за новою назвою "Група A"
         df_a = df_all[df_all['Група'] == 'Група A'].drop(columns=['Група'])
         df_a = df_a.sort_values(by=['Очки', 'Перемоги'], ascending=[False, False])
         st.dataframe(df_a, hide_index=True, use_container_width=True)
@@ -69,7 +70,6 @@ with col1:
 with col2:
     st.header("Група B")
     if not df_all.empty:
-        # Фільтруємо за новою назвою "Група B"
         df_b = df_all[df_all['Група'] == 'Група B'].drop(columns=['Група'])
         df_b = df_b.sort_values(by=['Очки', 'Перемоги'], ascending=[False, False])
         st.dataframe(df_b, hide_index=True, use_container_width=True)
@@ -82,16 +82,14 @@ playoff_stages = ["Півфінал 1", "Півфінал 2", "Матч за 3-�
 playoff_matches = [m for m in data['matches'] if m['stage'] in playoff_stages]
 
 if playoff_matches:
-    # Склеюємо рахунок назад у красивий рядок "2 : 1" для відображення
-    for m in playoff_matches:
-        if m['status'] == 'Зіграна':
-            m['Візуальний_рахунок'] = f"{m['score1']} : {m['score2']}"
-        else:
-            m['Візуальний_рахунок'] = "- : -"
-            
     df_playoffs = pd.DataFrame(playoff_matches)
     
-    # Виводимо тепер ще й дату матчу
+    # Безпечне створення колонки рахунку (без мутації кешу)
+    df_playoffs['Візуальний_рахунок'] = df_playoffs.apply(
+        lambda row: f"{row['score1']} : {row['score2']}" if row['status'] == 'Зіграна' else "- : -", 
+        axis=1
+    )
+    
     expected_columns = ['stage', 'date', 'team1', 'Візуальний_рахунок', 'team2', 'status']
     for col in expected_columns:
         if col not in df_playoffs.columns:
@@ -115,7 +113,6 @@ st.divider()
 # 4. СТАТИСТИКА ТА РОЗКЛАД КОНКРЕТНОЇ КОМАНДИ
 st.subheader("📊 Розклад та історія команди")
 
-# Збираємо всі команди з нового словника
 team_names = []
 for group_teams in data['teams'].values():
     team_names.extend(group_teams)
@@ -128,13 +125,14 @@ team_matches = [
 ]
 
 if team_matches:
-    for m in team_matches:
-        if m['status'] == 'Зіграна':
-            m['Візуальний_рахунок'] = f"{m['score1']} : {m['score2']}"
-        else:
-            m['Візуальний_рахунок'] = "- : -"
-            
     df_matches = pd.DataFrame(team_matches)
+    
+    # Безпечне створення колонки рахунку
+    df_matches['Візуальний_рахунок'] = df_matches.apply(
+        lambda row: f"{row['score1']} : {row['score2']}" if row['status'] == 'Зіграна' else "- : -", 
+        axis=1
+    )
+    
     df_matches = df_matches[['stage', 'date', 'team1', 'Візуальний_рахунок', 'team2', 'status']]
     df_matches = df_matches.rename(columns={
         'stage': 'Етап',
