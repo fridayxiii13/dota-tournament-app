@@ -85,17 +85,28 @@ try:
             st.dataframe(df_b.drop(columns=["Різниця карт"]), use_container_width=True)
 
         st.divider()
-        st.subheader("🔥 Етап Плей-оф (Суперфінал)")
-        playoff_matches = [m for m in matches if m["stage"] not in ["Група A", "Група B"]]
-        
-        p_cols = st.columns(len(playoff_matches))
-        for idx, pm in enumerate(playoff_matches):
-            with p_cols[idx]:
-                st.markdown(f"**{pm['stage']}** ({pm['status']})")
-                if pm["status"] == "Зіграна":
-                    st.success(f"{pm['team1']} **{pm['score1']} : {pm['score2']}** {pm['team2']}")
-                else:
-                    st.info(f"{pm['team1']} **vs** {pm['team2']}\n\n🕒 {pm['date']}")
+        st.header("🔥 Стадія Плей-оф")
+
+        # Фільтруємо всі матчі, етап яких не є груповим
+        playoff_stages = ["Півфінал 1", "Півфінал 2", "Матч за 3-тє місце", "Суперфінал"]
+        playoff_matches = [m for m in data['matches'] if m['stage'] in playoff_stages]
+
+        if playoff_matches:
+            df_playoffs = pd.DataFrame(playoff_matches)
+            # Залишаємо лише найважливіші колонки для глядачів
+            df_playoffs = df_playoffs[['stage', 'team1', 'score', 'team2', 'status']]
+            df_playoffs = df_playoffs.rename(columns={
+                'stage': 'Етап', 
+                'team1': 'Команда 1', 
+                'score': 'Рахунок', 
+                'team2': 'Команда 2', 
+                'status': 'Статус'
+            })
+    
+            # Виводимо сітку плей-оф окремою таблицею
+            st.dataframe(df_playoffs, hide_index=True, use_container_width=True)
+        else:
+            st.info("Матчі плей-оф ще не сформовані.")
 
     # --- ВКЛАДКА 2: СТАТИСТИКА ПО КОМАНДІ ---
     with tab2:
